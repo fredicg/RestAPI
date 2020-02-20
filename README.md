@@ -1,5 +1,5 @@
 # RestAPI
- deliveryFood - Em desenvolvimento.
+ deliveryFood - Em desenvolvimento. Ultima atualização 20/02/2020
  
  Utilizando Spring rest.
  
