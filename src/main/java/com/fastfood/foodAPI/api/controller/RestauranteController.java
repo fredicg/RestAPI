@@ -17,6 +17,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fastfood.foodAPI.api.assembler.RestauranteInputDisassembler;
+import com.fastfood.foodAPI.api.assembler.RestauranteModelAssembler;
+import com.fastfood.foodAPI.api.model.RestauranteDTO;
+import com.fastfood.foodAPI.api.model.input.RestauranteInput;
 import com.fastfood.foodAPI.domain.Service.CadastroRestauranteService;
 import com.fastfood.foodAPI.domain.exception.EntidadeNaoEncontradaException;
 import com.fastfood.foodAPI.domain.exception.NegocioException;
@@ -27,42 +31,56 @@ import com.fastfood.foodAPI.domain.repository.RestauranteRepository;
 @RestController
 @RequestMapping("restaurantes")
 public class RestauranteController {
-	
+
 	@Autowired
 	private RestauranteRepository restauranteRepository;
-	
+
 	@Autowired
 	private CadastroRestauranteService cadastroRestaurante;
+
+	@Autowired
+	private RestauranteModelAssembler restauranteModelAssembler;
+
+	@Autowired
+	public RestauranteInputDisassembler restauranteInputDisassembler;
 	
 	@GetMapping
-	public List<Restaurante> Listar(){
-		
-		return restauranteRepository.findAll();
+	public List<RestauranteDTO> Listar() {
+
+		// Usando DTO
+		return restauranteModelAssembler.toCollectionModel(restauranteRepository.findAll());
+
+		// return restauranteRepository.findAll();
 	}
-	
 
 	@GetMapping("/{restauranteId}")
-	public Restaurante Buscar(@PathVariable Long restauranteId){
-		return cadastroRestaurante.BuscarOuFalhar(restauranteId);
-		
+	public RestauranteDTO Buscar(@PathVariable Long restauranteId) {
+
+		// Usando DTO
+		Restaurante restaurante = cadastroRestaurante.BuscarOuFalhar(restauranteId);
+		return restauranteModelAssembler.toModel(restaurante);
+
 		/*
+		 * Restaurante restaurante = cadastroRestaurante.BuscarOuFalhar(restauranteId);
+		 * RestauranteDTO restauranteDTO = null; return restauranteDTO; /*
 		 * if(restaurante != null) { return ResponseEntity.ok(restaurante.get()); }
 		 * return ResponseEntity.notFound().build();
 		 */
-		
+
 	}
-	
+
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public Restaurante Salvar(@RequestBody @Valid Restaurante restaurante) {
-		
+	public RestauranteDTO Salvar(@RequestBody @Valid RestauranteInput restauranteInput) {
+
 		try {
-		return cadastroRestaurante.Salvar(restaurante);
-		}
-		catch (EntidadeNaoEncontradaException e) {
+			// usando DTO
+			Restaurante restaurante = restauranteInputDisassembler.toDomainObject(restauranteInput);
+			return restauranteModelAssembler.toModel(cadastroRestaurante.Salvar(restaurante));
+		} catch (EntidadeNaoEncontradaException e) {
 			throw new NegocioException(e.getMessage());
 		}
-		
+
 		/*
 		 * try {
 		 * 
@@ -70,29 +88,44 @@ public class RestauranteController {
 		 * ResponseEntity.status(HttpStatus.CREATED).body(restaurante); }catch
 		 * (EntidadeNaoEncontradaException e) { return
 		 * ResponseEntity.badRequest().body(e.getMessage()); }
-		 */		
+		 */
 	}
-	
-	@PutMapping("/{restauranteId}")
-	public Restaurante Atualizar(@PathVariable Long restauranteId, @RequestBody @Valid Restaurante restaurante ){
-		
 
+	@PutMapping("/{restauranteId}")
+	public RestauranteDTO Atualizar(@PathVariable Long restauranteId, @RequestBody @Valid RestauranteInput restauranteInput) {
+
+		try {
+			
+			//usando DTO
+			Restaurante restaurante = restauranteInputDisassembler.toDomainObject(restauranteInput);
+			
 			Restaurante restauranteAtual = cadastroRestaurante.BuscarOuFalhar(restauranteId);
-		
-			BeanUtils.copyProperties(restaurante, restauranteAtual, "id", "formasPagamento", "endereco", "dataCadastro");
 			
-			try {
+			BeanUtils.copyProperties(restaurante, restauranteAtual, 
+					"id", "formasPagamento", "endereco", "dataCadastro", "produtos");
+
+			return restauranteModelAssembler.toModel(cadastroRestaurante.Salvar(restauranteAtual));
+
+			/*
+			Restaurante restauranteAtual = cadastroRestaurante.BuscarOuFalhar(restauranteId);
+
+			BeanUtils.copyProperties(restaurante, restauranteAtual, "id", "formasPagamento", "endereco",
+					"dataCadastro");
+
 			return cadastroRestaurante.Salvar(restauranteAtual);
-			}
-			catch (EntidadeNaoEncontradaException e) {
-				throw new NegocioException(e.getMessage());
-			}
-			
+			*/
+
+		} catch (EntidadeNaoEncontradaException e) {
+			throw new NegocioException(e.getMessage());
+		}
+
 	}
-	
+
 	@DeleteMapping("/{restauranteId}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void Remover(@PathVariable Long restauranteId) {
 		cadastroRestaurante.Remover(restauranteId);
 	}
+
+	
 }
