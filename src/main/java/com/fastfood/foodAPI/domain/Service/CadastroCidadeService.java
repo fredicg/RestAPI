@@ -11,21 +11,17 @@ import com.fastfood.foodAPI.domain.exception.EntidadeEmUsoException;
 import com.fastfood.foodAPI.domain.model.Cidade;
 import com.fastfood.foodAPI.domain.model.Estado;
 import com.fastfood.foodAPI.domain.repository.CidadeRepository;
-import com.fastfood.foodAPI.domain.repository.EstadoRepository;
 
 
 @Service
 public class CadastroCidadeService {
 
-	private static final String MSG_ESTADO_NAO_ENCONTRADO = "Não existe cadastro de estado com o código %d";
+	//private static final String MSG_ESTADO_NAO_ENCONTRADO = "Não existe cadastro de estado com o código %d";
 	
 	private static final String MSG_CIDADE_EM_USO = "Cidade de código %d não pode ser removida, pois está em uso.";
 
 	@Autowired
 	private CidadeRepository cidadeRepository;
-	
-	@Autowired
-	private EstadoRepository estadoRepository;
 	
 	@Autowired
 	private CadastroEstadosService cadastroEstado;
@@ -46,6 +42,7 @@ public class CadastroCidadeService {
 	public void Remover(Long cidadeId) {
 		try {
 			cidadeRepository.deleteById(cidadeId);
+			cidadeRepository.flush();
 			
 		}catch (EmptyResultDataAccessException e) {
 			throw new CidadeNaoEncontradaException(cidadeId);

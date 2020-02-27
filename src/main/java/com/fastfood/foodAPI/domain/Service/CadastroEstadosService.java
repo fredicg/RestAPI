@@ -15,7 +15,7 @@ import com.fastfood.foodAPI.domain.repository.EstadoRepository;
 public class CadastroEstadosService {
 
 	private static final String MSG_ESTADO_EM_USO = "Estado de código %d não pode ser removido, pois está em uso";
-	private static final String MSG_ESTADO_NAO_ENCONTRADA = "Estado de código %d não encontrado";
+	//private static final String MSG_ESTADO_NAO_ENCONTRADA = "Estado de código %d não encontrado";
 	@Autowired
 	private EstadoRepository estadoRepository;
 	
@@ -29,6 +29,8 @@ public class CadastroEstadosService {
 	public void Remover(Long estadoId) {
 		try {
 			estadoRepository.deleteById(estadoId);
+			estadoRepository.flush();
+			
 		}
 		catch (EmptyResultDataAccessException e) {
 			throw new EstadoNaoEncontradoException(estadoId);

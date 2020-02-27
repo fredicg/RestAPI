@@ -9,9 +9,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.fastfood.foodAPI.domain.exception.EntidadeEmUsoException;
 import com.fastfood.foodAPI.domain.exception.RestauranteNaoEncontradoException;
+import com.fastfood.foodAPI.domain.model.Cidade;
 import com.fastfood.foodAPI.domain.model.Cozinha;
+import com.fastfood.foodAPI.domain.model.FormaPagamento;
 import com.fastfood.foodAPI.domain.model.Restaurante;
-import com.fastfood.foodAPI.domain.repository.CozinhaRepository;
 import com.fastfood.foodAPI.domain.repository.RestauranteRepository;
 
 @Service
@@ -23,18 +24,26 @@ public class CadastroRestauranteService {
 	private RestauranteRepository restauranteRepository;
 	
 	@Autowired
-	private CozinhaRepository cozinhaRepository;
+	private CadastroCozinhaService cadastroCozinha;
 	
 	@Autowired
-	private CadastroCozinhaService cadastroCozinha;
+	private CadastroFormaPagamentoService cadastroFormaPagamento;
+	
+	@Autowired
+	private CadastroCidadeService cadastroCidade;
+
 	
 	@Transactional
 	public Restaurante Salvar(Restaurante restaurante) {
 		
 		Long cozinhaId = restaurante.getCozinha().getId();
+		Long cidadeId = restaurante.getEndereco().getCidade().getId();
+		
 		Cozinha cozinha = cadastroCozinha.BuscarOuFalhar(cozinhaId);
+		Cidade cidade = cadastroCidade.BuscarOuFalhar(cidadeId);
 
 		restaurante.setCozinha(cozinha);
+		restaurante.getEndereco().setCidade(cidade);
 		
 		return restauranteRepository.save(restaurante);
 	}
@@ -44,6 +53,8 @@ public class CadastroRestauranteService {
 		try 
 		{
 			restauranteRepository.deleteById(restauranteId);
+			restauranteRepository.flush();
+			
 		}catch (EmptyResultDataAccessException e) {
 			throw new RestauranteNaoEncontradoException(restauranteId); 
 		} 
@@ -54,6 +65,55 @@ public class CadastroRestauranteService {
 		}
 	
 	}
+	
+	public void ativar(Long restauranteId) {
+		
+		Restaurante restauranteAtual = BuscarOuFalhar(restauranteId);
+		
+		restauranteAtual.ativar();
+	}
+	
+	public void inativar(Long restauranteId) {
+		
+		Restaurante restauranteAtual = BuscarOuFalhar(restauranteId);
+		
+		restauranteAtual.inativar();
+	}
+	
+	@Transactional
+	public void abrir(Long restauranteId) {
+		Restaurante restauranteAtual = BuscarOuFalhar(restauranteId);
+		
+		restauranteAtual.abrir();
+	}
+	
+	@Transactional
+	public void fechar(Long restauranteId) {
+		Restaurante restauranteAtual = BuscarOuFalhar(restauranteId);
+		
+		restauranteAtual.fechar();
+	}
+	
+	@Transactional
+	public void desassociarFormaPagamento(Long restauranteId, Long formaPagamentoId) {
+		
+		//O próprio jpa faz a atualização automaticamente, não precisa chamar o save
+		Restaurante restaurante = BuscarOuFalhar(restauranteId);
+		FormaPagamento formaPagamento = cadastroFormaPagamento.BuscarOuFalhar(formaPagamentoId);
+		
+		restaurante.desassociarFormaPagamento(formaPagamento);
+	}
+
+	@Transactional
+	public void adicionarFormaPagamento(Long restauranteId, Long formaPagamentoId) {
+		
+		//O próprio jpa faz a atualização automaticamente, não precisa chamar o save
+		Restaurante restaurante = BuscarOuFalhar(restauranteId);
+		FormaPagamento formaPagamento = cadastroFormaPagamento.BuscarOuFalhar(formaPagamentoId);
+		
+		restaurante.adicionarFormaPagamento(formaPagamento);
+	}
+	
 	
 	public Restaurante BuscarOuFalhar(Long restauranteId) {
 		return restauranteRepository.findById(restauranteId)

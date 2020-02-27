@@ -24,7 +24,7 @@ public class Cozinha {
 	@EqualsAndHashCode.Include
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long Id;
+	private Long id;
 	
 	//Ignora o campo na resposta.
 	//@JsonIgnore
@@ -33,7 +33,7 @@ public class Cozinha {
 	//@JsonProperty("titulo")
 	@NotBlank
 	@Column(nullable = false)
-	private String Nome;
+	private String nome;
 	
 	@OneToMany(mappedBy = "cozinha") 
 	private List<Restaurante> restaurantes = new ArrayList<>(); 
