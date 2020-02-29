@@ -7,24 +7,24 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.fastfood.foodAPI.api.model.GrupoDTO;
-import com.fastfood.foodAPI.domain.model.Grupo;
+import com.fastfood.foodAPI.api.model.PermissaoDTO;
+import com.fastfood.foodAPI.domain.model.Permissao;
 
 @Component
-public class GrupoModelAssembler {
+public class PermissaoModelAssembler {
 
 	@Autowired
 	private ModelMapper modelMapper;
 	
-	public GrupoDTO toModel(Grupo grupo) {
+	public PermissaoDTO toModel(Permissao permissao) {
 		
 		//usando ModelMapper
-		return modelMapper.map(grupo, GrupoDTO.class);
+		return modelMapper.map(permissao, PermissaoDTO.class);
 	}
 	
-	public List<GrupoDTO> toCollectionModel(Collection<Grupo> grupos) {
-		return grupos.stream()
-				.map(grupo -> toModel(grupo))
+	public List<PermissaoDTO> toCollectionModel(Collection<Permissao> permissoes) {
+		return permissoes.stream()
+				.map(permissao -> toModel(permissao))
 				.collect(Collectors.toList());
 	}
 	

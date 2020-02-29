@@ -27,7 +27,7 @@ import com.fastfood.foodAPI.domain.model.Grupo;
 import com.fastfood.foodAPI.domain.repository.GrupoRepository;
 
 @RestController
-@RequestMapping("/Grupos")
+@RequestMapping("/grupos")
 public class GrupoController {
 
 	@Autowired

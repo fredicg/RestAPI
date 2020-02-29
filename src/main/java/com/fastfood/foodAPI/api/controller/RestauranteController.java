@@ -23,6 +23,7 @@ import com.fastfood.foodAPI.api.model.input.RestauranteInput;
 import com.fastfood.foodAPI.domain.Service.CadastroRestauranteService;
 import com.fastfood.foodAPI.domain.exception.EntidadeNaoEncontradaException;
 import com.fastfood.foodAPI.domain.exception.NegocioException;
+import com.fastfood.foodAPI.domain.exception.RestauranteNaoEncontradoException;
 import com.fastfood.foodAPI.domain.model.Restaurante;
 import com.fastfood.foodAPI.domain.repository.RestauranteRepository;
 
@@ -142,6 +143,28 @@ public class RestauranteController {
 		cadastroRestaurante.inativar(restauranteId);
 	}
 
+	@PutMapping("/ativacoes")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void ativarMultiplos(@RequestBody List<Long> restauranteId) {
+		try {
+		cadastroRestaurante.ativar(restauranteId);
+		}catch(RestauranteNaoEncontradoException e) {
+			throw new NegocioException(e.getMessage(), e);
+		}
+
+	}
+	
+	@DeleteMapping("/ativacoes")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void inativarMultiplos(@RequestBody List<Long> restauranteId) {
+		try {
+		cadastroRestaurante.inativar(restauranteId);
+		}catch(RestauranteNaoEncontradoException e) {
+			throw new NegocioException(e.getMessage(), e);
+		}
+	}
+
+	
 	@PutMapping("/{restauranteId}/abertura")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void abrir(@PathVariable Long restauranteId){

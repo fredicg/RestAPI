@@ -1,6 +1,8 @@
 package com.fastfood.foodAPI.domain.Service;
 
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -13,6 +15,7 @@ import com.fastfood.foodAPI.domain.model.Cidade;
 import com.fastfood.foodAPI.domain.model.Cozinha;
 import com.fastfood.foodAPI.domain.model.FormaPagamento;
 import com.fastfood.foodAPI.domain.model.Restaurante;
+import com.fastfood.foodAPI.domain.model.Usuario;
 import com.fastfood.foodAPI.domain.repository.RestauranteRepository;
 
 @Service
@@ -28,6 +31,9 @@ public class CadastroRestauranteService {
 	
 	@Autowired
 	private CadastroFormaPagamentoService cadastroFormaPagamento;
+	
+	@Autowired
+	private CadastroUsuarioService CadastroUsuario;
 	
 	@Autowired
 	private CadastroCidadeService cadastroCidade;
@@ -80,6 +86,18 @@ public class CadastroRestauranteService {
 		restauranteAtual.inativar();
 	}
 	
+
+	@Transactional
+	public void ativar(List<Long> restauranteId) {
+		restauranteId.forEach(this::ativar);
+	}
+	
+	@Transactional
+	public void inativar(List<Long> restauranteId) {
+		restauranteId.forEach(this::inativar);
+	}
+
+	
 	@Transactional
 	public void abrir(Long restauranteId) {
 		Restaurante restauranteAtual = BuscarOuFalhar(restauranteId);
@@ -112,6 +130,26 @@ public class CadastroRestauranteService {
 		FormaPagamento formaPagamento = cadastroFormaPagamento.BuscarOuFalhar(formaPagamentoId);
 		
 		restaurante.adicionarFormaPagamento(formaPagamento);
+	}
+	
+	@Transactional
+	public void adicionarResponsavel(Long restauranteId, Long usuarioId) {
+		
+		//O próprio jpa faz a atualização automaticamente, não precisa chamar o save
+		Restaurante restaurante = BuscarOuFalhar(restauranteId);
+		Usuario usuario = CadastroUsuario.BuscarOuFalhar(usuarioId);
+		
+		restaurante.adicionarResponsavel(usuario);
+	}
+	
+	@Transactional
+	public void removerResponsavel(Long restauranteId, Long usuarioId) {
+		
+		//O próprio jpa faz a atualização automaticamente, não precisa chamar o save
+		Restaurante restaurante = BuscarOuFalhar(restauranteId);
+		Usuario usuario = CadastroUsuario.BuscarOuFalhar(usuarioId);
+		
+		restaurante.removerResponsavel(usuario);
 	}
 	
 	

@@ -81,6 +81,12 @@ public class Restaurante {
 	//assim inpede a inserção de forma de pagamento duplicado
 	private Set<FormaPagamento> formaPagamento = new HashSet<>();
 	
+	@ManyToMany
+	@JoinTable(name="restaurante_usuario_responsavel", joinColumns = @JoinColumn(name="restaurante_id")
+		,inverseJoinColumns = @JoinColumn(name="usuario_id"))
+	//assim inpede a inserção de forma de pagamento duplicado
+	private Set<Usuario> responsaveis = new HashSet<>();
+	
 	@OneToMany(mappedBy = "restaurante") 
 	private List<Produto> produtos = new ArrayList<>(); 
 	
@@ -105,6 +111,14 @@ public class Restaurante {
 	
 	public boolean desassociarFormaPagamento(FormaPagamento formaPagamento) {
 		return getFormaPagamento().remove(formaPagamento);
+	}
+	
+	public boolean removerResponsavel(Usuario usuario) {
+		return getResponsaveis().remove(usuario);
+	}
+	
+	public boolean adicionarResponsavel(Usuario usuario) {
+		return getResponsaveis().add(usuario);
 	}
 	
 }

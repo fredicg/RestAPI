@@ -10,6 +10,7 @@ import com.fastfood.foodAPI.domain.exception.CidadeNaoEncontradaException;
 import com.fastfood.foodAPI.domain.exception.EntidadeEmUsoException;
 import com.fastfood.foodAPI.domain.exception.GrupoNaoEncontradoException;
 import com.fastfood.foodAPI.domain.model.Grupo;
+import com.fastfood.foodAPI.domain.model.Permissao;
 import com.fastfood.foodAPI.domain.repository.GrupoRepository;
 
 
@@ -20,6 +21,9 @@ public class CadastroGrupoService {
 
 	@Autowired
 	private GrupoRepository grupoRepository;
+	
+	@Autowired
+	private CadastroPermissaoService cadastroPermissao;
 
 	@Transactional
 	public Grupo Salvar(Grupo grupo) {
@@ -38,6 +42,22 @@ public class CadastroGrupoService {
 		}catch (DataIntegrityViolationException e) {
 			throw new EntidadeEmUsoException(String.format(MSG_GRUPO_EM_USO, grupoId));
 		}
+	}
+	
+	@Transactional
+	public void desassociarPermissao(Long grupoId, Long permissaoId) {
+		Grupo grupo = BuscarOuFalhar(grupoId);
+		Permissao permissao = cadastroPermissao.BuscarOuFalhar(permissaoId);
+		
+		grupo.removerPermissao(permissao);
+	}
+	
+	@Transactional
+	public void associarPermissao(Long grupoId, Long permissaoId) {
+		Grupo grupo = BuscarOuFalhar(grupoId);
+		Permissao permissao = cadastroPermissao.BuscarOuFalhar(permissaoId);
+		
+		grupo.adicionarPermissao(permissao);
 	}
 	
 	
