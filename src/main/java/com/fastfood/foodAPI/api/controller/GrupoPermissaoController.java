@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fastfood.foodAPI.api.assembler.PermissaoInputDisassembler;
 import com.fastfood.foodAPI.api.assembler.PermissaoModelAssembler;
 import com.fastfood.foodAPI.api.model.PermissaoDTO;
 import com.fastfood.foodAPI.domain.Service.CadastroGrupoService;
@@ -29,9 +28,6 @@ public class GrupoPermissaoController {
 
 	@Autowired
 	private PermissaoModelAssembler permissaoModelAssembler;
-
-	@Autowired
-	public PermissaoInputDisassembler permissaoInputDisassembler;
 
 	@Autowired
 	public CadastroGrupoService cadastroGrupo;

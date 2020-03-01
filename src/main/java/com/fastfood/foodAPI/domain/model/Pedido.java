@@ -8,6 +8,8 @@ import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -30,28 +32,24 @@ public class Pedido {
 	@Id
 	private Long id;
 	
-	@Column(nullable = false)
 	private BigDecimal subtotal;
-
-	@Column(nullable = false)
-	private BigDecimal taxafrete;
-	
-	@Column(nullable = false)
-	private BigDecimal valortotal;
+	private BigDecimal taxa_frete;
+	private BigDecimal valor_total;
 	
 	@Embedded
 	private Endereco enderecoEntrega;
 	
-	@Column(length = 10)
+	
+	@Enumerated(EnumType.STRING)
 	private StatusPedido status;
 	
 	@CreationTimestamp
 	@Column(nullable = false, columnDefinition = "datetime")
-	private OffsetDateTime datacriacao;
+	private OffsetDateTime data_criacao;
 
-	private OffsetDateTime dataconfirmacao;
-	private OffsetDateTime cancelamento;
-	private OffsetDateTime dataentrega;
+	private OffsetDateTime data_confirmacao;
+	private OffsetDateTime data_cancelamento;
+	private OffsetDateTime data_entrega;
 
 	@ManyToOne
 	@JoinColumn(nullable = false)
@@ -69,8 +67,20 @@ public class Pedido {
 	private List<ItemPedido> itens = new ArrayList<>();
 	
 	
+	public void calcularValorTotal() {
+		this.subtotal = getItens().stream()
+			.map(item -> item.getPreco_total())
+			.reduce(BigDecimal.ZERO, BigDecimal::add);
+		
+		this.valor_total = this.subtotal.add(this.taxa_frete);
+	}
 	
-
-
+	public void definirFrete() {
+		setTaxa_frete(getRestaurante().getTaxaFrete());
+	}
+	
+	public void atribuirPedidoAosItens() {
+		getItens().forEach(item -> item.setPedido(this));
+	}
 
 }

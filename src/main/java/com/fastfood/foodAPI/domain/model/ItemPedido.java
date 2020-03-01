@@ -2,7 +2,6 @@ package com.fastfood.foodAPI.domain.model;
 
 import java.math.BigDecimal;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -22,26 +21,18 @@ public class ItemPedido {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	
-	@Column(nullable = false)
-	private int quantidade;
-	
-	@Column(nullable = false)
-	private BigDecimal precoUnitario;
-	
-	@Column(nullable = false)
-	private BigDecimal precoTotal;
-	
-	private String observacao;
-	
-	@ManyToOne
-	@JoinColumn(name = "pedido_id" ,nullable = false)
-	private Pedido pedido;
-	
-	@ManyToOne
-	@JoinColumn(name = "produto_id", nullable = false)
-	private Produto produto;
-	
 
+	private BigDecimal preco_unitario;
+	private BigDecimal preco_total;
+	private Integer quantidade;
+	private String observacao;
+
+	@ManyToOne
+	@JoinColumn(nullable = false)
+	private Pedido pedido;
+
+	@ManyToOne
+	@JoinColumn(nullable = false)
+	private Produto produto;
 	
 }
