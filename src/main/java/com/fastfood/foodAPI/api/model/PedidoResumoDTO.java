@@ -3,11 +3,9 @@ package com.fastfood.foodAPI.api.model;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
+@Data
 public class PedidoResumoDTO {
 
 	private Long id;

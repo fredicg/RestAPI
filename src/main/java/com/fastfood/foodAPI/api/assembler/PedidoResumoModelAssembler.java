@@ -1,5 +1,4 @@
 package com.fastfood.foodAPI.api.assembler;
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,7 +21,8 @@ public class PedidoResumoModelAssembler {
 		return modelMapper.map(pedido, PedidoResumoDTO.class);
 	}
 	
-	public List<PedidoResumoDTO> toCollectionModel(Collection<Pedido> pedidos) {
+	public List<PedidoResumoDTO> toCollectionModel(List<Pedido> pedidos) {
+		
 		return pedidos.stream()
 				.map(pedido -> toModel(pedido))
 				.collect(Collectors.toList());
