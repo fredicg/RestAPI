@@ -11,7 +11,7 @@ import lombok.Setter;
 @Setter
 public class PedidoDTO {
 
-	private Long id;
+	private String codigo;
 	private BigDecimal subTotal;
 	private BigDecimal taxa_frete;
 	private BigDecimal valor_total;

@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -18,8 +19,11 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.PrePersist;
 
 import org.hibernate.annotations.CreationTimestamp;
+
+import com.fastfood.foodAPI.domain.exception.NegocioException;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -33,6 +37,7 @@ public class Pedido {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Id
 	private Long id;
+	private String codigo;
 	
 	private BigDecimal subtotal;
 	private BigDecimal taxa_frete;
@@ -43,7 +48,7 @@ public class Pedido {
 	
 	
 	@Enumerated(EnumType.STRING)
-	private StatusPedido status;
+	private StatusPedido status= StatusPedido.CRIADO;
 	
 	@CreationTimestamp
 	@Column(nullable = false, columnDefinition = "datetime")
@@ -70,6 +75,7 @@ public class Pedido {
 	
 	
 	public void calcularValorTotal() {
+		getItens().forEach(ItemPedido::calcularPrecoTotal);
 		this.subtotal = getItens().stream()
 			.map(item -> item.getPreco_total())
 			.reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -77,13 +83,40 @@ public class Pedido {
 		this.valor_total = this.subtotal.add(this.taxa_frete);
 	}
 	
-	/*public void definirFrete() {
+	public void definirFrete() {
 		setTaxa_frete(getRestaurante().getTaxaFrete());
 	}
 	
 	public void atribuirPedidoAosItens() {
 		getItens().forEach(item -> item.setPedido(this));
 	}
-	*/
+	
+	public void confirmar() {
+		setStatus(StatusPedido.CONFIRMADO);
+		setData_confirmacao(OffsetDateTime.now());
+	}
+	
+	public void entregar() {
+		setStatus(StatusPedido.ENTREGUE);
+		setData_entrega(OffsetDateTime.now());
+	}
 
+	
+	public void cancelar() {
+		setStatus(StatusPedido.CANCELADO);
+		setData_cancelamento(OffsetDateTime.now());
+	}
+	
+	private void setStatus(StatusPedido novoStatus) {
+		if(getStatus().naoPodeAlterarPara(novoStatus)) {
+			throw new NegocioException(String.format("Status do pedido %s não pode ser alterado de %s para %s", 
+					getCodigo(), getStatus().getDescricao(), novoStatus.getDescricao())); 
+		}
+		this.status = novoStatus;
+	}
+
+	@PrePersist
+	private void gerarCodigo() {
+		setCodigo(UUID.randomUUID().toString());
+	}
 }

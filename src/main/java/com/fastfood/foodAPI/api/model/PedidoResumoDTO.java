@@ -8,11 +8,11 @@ import lombok.Data;
 @Data
 public class PedidoResumoDTO {
 
-	private Long id;
+	private String codigo;
 	private BigDecimal subTotal;
 	private BigDecimal taxa_frete;
 	private BigDecimal valor_total;
-	private EnderecoDTO enderecoEntrega;
+	//private EnderecoDTO enderecoEntrega;
 	private String status;
 	private OffsetDateTime data_criacao;
 	private RestauranteResumoDTO restaurante;

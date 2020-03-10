@@ -1,18 +1,11 @@
 package com.fastfood.foodAPI.domain.exception;
 
-public class PedidoNaoEncontradoException extends EntidadeNaoEncontradaException{//ResponseStatusException  {
+public class PedidoNaoEncontradoException extends EntidadeNaoEncontradaException {
 
 	private static final long serialVersionUID = 1L;
-	
-	/*
-	 * public EntidadeNaoEncontradaException(HttpStatus status, String reason) {
-	 * super(status, reason); }
-	 */
-	public PedidoNaoEncontradoException(String mensagem) {
-		super(mensagem);
+
+	public PedidoNaoEncontradoException(String codigoPedido) {
+		super(String.format("Não existe um pedido com código %s", codigoPedido));
 	}
 	
-	public PedidoNaoEncontradoException (Long pedidoId) {
-		this(String.format("Não existe um pedido com o código %d", pedidoId));
-	}
 }

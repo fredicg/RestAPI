@@ -5,6 +5,10 @@ import java.util.List;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,12 +24,16 @@ import com.fastfood.foodAPI.api.assembler.PedidoResumoModelAssembler;
 import com.fastfood.foodAPI.api.model.PedidoDTO;
 import com.fastfood.foodAPI.api.model.PedidoResumoDTO;
 import com.fastfood.foodAPI.api.model.input.PedidoInput;
+import com.fastfood.foodAPI.core.data.PageableTranslator;
 import com.fastfood.foodAPI.domain.Service.EmissaoPedidoService;
 import com.fastfood.foodAPI.domain.exception.EntidadeNaoEncontradaException;
 import com.fastfood.foodAPI.domain.exception.NegocioException;
+import com.fastfood.foodAPI.domain.filter.PedidoFilter;
 import com.fastfood.foodAPI.domain.model.Pedido;
 import com.fastfood.foodAPI.domain.model.Usuario;
 import com.fastfood.foodAPI.domain.repository.PedidoRepository;
+import com.fastfood.foodAPI.infra.repository.spec.PedidoSpecs;
+import com.google.common.collect.ImmutableMap;
 
 @RestController
 @RequestMapping("/pedidos")
@@ -47,25 +55,18 @@ public class PedidoController {
 	private PedidoInputDisassembler pedidoInputDisassembler;
 	
 	@GetMapping
-	public List<PedidoResumoDTO> listar() {
-		List<Pedido> pedidos = pedidoRepository.findAll();
-	
-		/*for (Pedido pedido : pedidos) {
-			System.out.println("pedido Id " +pedido.getId());
-			System.out.println("pedido SubTotal " +pedido.getSubtotal());
-			System.out.println("pedido frete " +pedido.getTaxa_frete());
-			System.out.println("pedido total " +pedido.getValor_total());
-			System.out.println("pedido status " +pedido.getStatus());
-			System.out.println("pedido data criacao " +pedido.getData_criacao());
-			System.out.println("pedido Restaurante Id " +pedido.getRestaurante().getId());
-			System.out.println("pedido Restaurante Nome" +pedido.getRestaurante().getNome());
-			System.out.println("pedido Restaurante Complemento " +pedido.getRestaurante().getEndereco().getComplemento());
-			System.out.println("pedido Cliente Id " + pedido.getCliente().getId());
-			System.out.println("pedido Cliente Nome " +pedido.getCliente().getNome());
-			System.out.println("pedido Endereco Complemento " +pedido.getEnderecoEntrega().getComplemento());
-		} */
+	public Page<PedidoResumoDTO> pesquisar(PedidoFilter filtro,@PageableDefault(size=2) Pageable pageable ) {
 		
-		return pedidoResumoModelAssembler.toCollectionModel(pedidos);
+		pageable = traduzirPageable(pageable);
+		
+		Page<Pedido> pedidosPage = pedidoRepository.findAll(PedidoSpecs.usandoFiltro(filtro), pageable);
+	
+		List<PedidoResumoDTO> pedidoResumoDTO = pedidoResumoModelAssembler.toCollectionModel(pedidosPage.getContent());
+		
+		Page<PedidoResumoDTO> pedidosResumoDTOPage = new PageImpl<>(pedidoResumoDTO, pageable, pedidosPage.getTotalElements());
+		
+		return pedidosResumoDTOPage;
+		
 	}
 	
 	@PostMapping
@@ -87,10 +88,21 @@ public class PedidoController {
 	}
 	
 	
-	@GetMapping("/{pedidoId}")
-	public PedidoDTO buscar(@PathVariable Long pedidoId) {
-		Pedido pedido = emissaoPedido.buscarOuFalhar(pedidoId);
+	@GetMapping("/{codigopedido}")
+	public PedidoDTO buscar(@PathVariable String codigopedido) {
+		Pedido pedido = emissaoPedido.buscarOuFalhar(codigopedido);
 		
 		return pedidoModelAssembler.toModel(pedido);
+	}
+	
+	private Pageable  traduzirPageable(Pageable apiPageable) {
+		var mapeamento = ImmutableMap.of(
+				"codigo", "codigo",
+				"restaurante.nome", "restaurante.nome",
+				"cliente.nome", "cliente.nome",
+				"valor_total", "valor_total"
+				);
+		return PageableTranslator.translate(apiPageable, mapeamento);
+		
 	}
 }

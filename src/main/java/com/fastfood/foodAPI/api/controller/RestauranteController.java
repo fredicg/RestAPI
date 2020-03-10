@@ -16,10 +16,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fastfood.foodAPI.api.assembler.RestauranteInputDisassembler;
 import com.fastfood.foodAPI.api.assembler.RestauranteModelAssembler;
 import com.fastfood.foodAPI.api.model.RestauranteDTO;
 import com.fastfood.foodAPI.api.model.input.RestauranteInput;
+import com.fastfood.foodAPI.api.model.view.RestauranteView;
 import com.fastfood.foodAPI.domain.Service.CadastroRestauranteService;
 import com.fastfood.foodAPI.domain.exception.EntidadeNaoEncontradaException;
 import com.fastfood.foodAPI.domain.exception.NegocioException;
@@ -44,15 +46,24 @@ public class RestauranteController {
 	@Autowired
 	public RestauranteInputDisassembler restauranteInputDisassembler;
 	
+	@JsonView(RestauranteView.Resumo.class)
+	@GetMapping(params = "projecao=resumo")
+	public List<RestauranteDTO> ListarResumido() {
+
+		// Usando DTO
+		return restauranteModelAssembler.toCollectionModel(restauranteRepository.findAll());
+
+	}
+	
 	@GetMapping
 	public List<RestauranteDTO> Listar() {
 
 		// Usando DTO
 		return restauranteModelAssembler.toCollectionModel(restauranteRepository.findAll());
 
-		// return restauranteRepository.findAll();
 	}
 
+	
 	@GetMapping("/{restauranteId}")
 	public RestauranteDTO Buscar(@PathVariable Long restauranteId) {
 
